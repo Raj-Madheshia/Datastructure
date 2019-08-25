@@ -9,19 +9,20 @@ def matchfinding(males_ranking, female_ranking):\
         for index,j in enumerate(i):      
             if not selected_males[index]:
                 if assign_males[j-1]==-1:
-                    assign_males[j-1] = index
+                    assign_males[j-1] = index+1
                     selected_males[index] =1
                 else:
                     rank_by_female =female_ranking[j-1]
-                    print(assign_males[j-1])
                     first = rank_by_female.index(assign_males[j-1])
                     second = rank_by_female.index(index+1)
                     if first > second :
-                        assign_males[j-1] =  index
-                        selected_males[assign_males[j-1]]=0
+                        
+                        selected_males[j-1]=0
+                        assign_males[j-1] =  index+1
                         selected_males[index] =1
+            
     for index, i in enumerate(assign_males):
-        print(index+1,">>>>>Match With<<<<<", i+1)
+        print(index+1,">>>>>Match With<<<<<", i)
         
 #a = [[1,3,4,3],[3,4,2,2],[2,1,3,1],[4,2,1,4]]
 a =[[1,3,2,4],[3,4,1,2],[4,2,3,1],[3,2,1,4]]
