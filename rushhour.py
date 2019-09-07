@@ -2,6 +2,7 @@ import numpy as np
 from collections import Counter
 from queue import Queue
 from copy import copy
+
 """
 Assuming 9 as a car.
 Taken Car size 2 .
@@ -24,27 +25,28 @@ class RushHour:
         a = a.reshape(-1)
         b = Counter(a)
         self.listOfCar = list(b.keys())
-        if self.isFinal():
-            print("Level: 0")
-            print(self.newnode.data)
-        else:
-            self.buildTree(list(self.newnode.data))
-            
+        self.buildTree(list(self.newnode.data))
+        
     def buildTree(self, root):
         depth =0
         self.dep = 0
         root = np.array(root).tolist()
-        self.expansion=[root]
+        self.expansion=[]
+        self.tester = []
         while(self.buildNeeded):
-            print("===========================",self.dep,"==============================")
-            self.printTraverse()
             self.expansion = []
-            self.expansion.append(root)
+            self.tester = []
             self.makeChildren(root, depth)
+            print("DEPTH: ",depth+1)
+            self.printTraverse(self.tester)
             depth+=1
             self.dep = depth
             
         
+        if  self.buildNeeded == False:
+            print("The Path found at Level of----> ", self.dep)
+            print("Path of car is :")
+            self.printTraverse(self.pathNode)
 
     def checkForMatrix(self, parent, x,y):
         if parent[x][y] != 0:
@@ -53,11 +55,14 @@ class RushHour:
             return True
 
     def makeChildren(self, parent, depth):
-        if depth>=0 and self.buildNeeded:
-            pass
+        if depth>=0:
+            self.expansion.append(parent)
+            self.tester.append(parent)
         else:
             return
-        
+
+        if self.buildNeeded==False:
+            return
 
         for i in self.listOfCar:
             if self.buildNeeded == False:
@@ -80,10 +85,10 @@ class RushHour:
                         new = np.array(parent).tolist()
                         if new not in self.expansion:
                             self.expansion.append(new)
+                            self.tester.append(new)
+                        self.pathNode = self.expansion.copy()
                         self.dep+=1
-                        print("===========================",self.dep,"==============================")
-                        #print("YES CLEAR", parent)
-                        self.printTraverse()
+                        self.buildNeeded=False
                         break
                 
                 if a[0][0] == a[0][1]:
@@ -99,8 +104,7 @@ class RushHour:
                             #print("Depth Possibile :", self.dep,".....Current: ",depth,newparent)
                             new = np.array(newparent).tolist()
                             if new not in self.expansion:
-                                self.expansion.append(new)
-                            self.makeChildren(list(newparent),depth-1)
+                                self.makeChildren(new,depth-1)
                     newparent = np.array(parent.copy())
                     if y2<(newparent.shape[-1]-1):
                         isPossible = self.checkForMatrix(newparent, x, y2+1)
@@ -109,14 +113,13 @@ class RushHour:
                             newparent[x][y1]=0
                             new = np.array(newparent).tolist()
                             if new not in self.expansion:
-                                self.expansion.append(new)
-                            #print("Depth Possibile :", self.dep,".....Current: ",depth,newparent)
-                            self.makeChildren(list(newparent),depth-1)
+                                self.makeChildren(new,depth-1)
                     elif i==9 and y2==(newparent.shape[-1]-1):
                         self.buildNeeded = False
                         new = np.array(newparent).tolist()
                         if new not in self.expansion:
                             self.expansion.append(new)
+                            
                         #print("Depth Possibile :", self.dep,".....Current: ",depth,newparent)
                         #print(newparent)
                         #self.printTraverse()
@@ -134,9 +137,7 @@ class RushHour:
                             newparent[x2][y]=0
                             new = np.array(newparent).tolist()
                             if new not in self.expansion:
-                                self.expansion.append(new)
-                            #print("Depth Possibile :", self.dep,".....Current: ",depth,newparent)
-                            self.makeChildren(list(newparent),depth-1)
+                                self.makeChildren(new,depth-1)
 
                     newparent = np.array(parent.copy())
                     if x2<(newparent.shape[0]-1):
@@ -146,10 +147,12 @@ class RushHour:
                             newparent[x1][y]=0
                             new = np.array(newparent).tolist()
                             if new not in self.expansion:
-                                self.expansion.append(new)
-                            #print("Depth Possibile :", self.dep,".....Current: ",depth,newparent)
-                            self.makeChildren(list(newparent),depth-1)
-                
+                                self.makeChildren(new,depth-1)
+        
+        self.expansion.pop()
+            
+            
+
     def pathClear(self, parent, x, y):
         chk = 0
         for i in parent[x][y+1:]:
@@ -161,7 +164,7 @@ class RushHour:
             return False
 
 
-    def printTraverse(self):
+    def printTraverse(self, value):
         # count =0
         # for i in self.expansion:
         #     if count%5==0:
@@ -170,34 +173,30 @@ class RushHour:
         #     count+1
         
         start = 0
-        end = np.array(self.expansion).shape[-1]-1
-        if end >=len(self.expansion):
-            new = self.expansion[start:len(self.expansion)]
+        end = np.array(value).shape[-1]-1
+        if end >=len(value):
+            new = value[start:len(value)]
             for i in list(zip(*new)):
                 print(i)
             print("\n")
-        while(end<len(self.expansion)):
-            new = self.expansion[start:end]
+        while(end<len(value)):
+            new = value[start:end]
             for i in list(zip(*new)):
                 print(i)
             print("\n")
             start = end
             end +=5
-            if end >=len(self.expansion):
-                end = len(self.expansion)
-                new = self.expansion[start:len(self.expansion)]
+            if end >=len(value):
+                end = len(value)
+                new = value[start:len(value)]
                 for i in list(zip(*new)):
                     print(i)
                 print("\n")
 
-    def isFinal(self):
-        # write chceking list logic here
-
-        return False
 
 a = np.array([[0,0,0],
-              [9,9,1],
-              [0,0,1],
-              [0,2,2]])
+              [9,9,2],
+              [0,0,2],
+              [0,1,1]])
 
 test = RushHour(a)
